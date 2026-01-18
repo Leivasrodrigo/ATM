@@ -1,12 +1,10 @@
 package com.ATM.domain.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "account")
@@ -20,15 +18,12 @@ public class Account {
     @GeneratedValue
     private Long id;
 
+    private String owner;
+
     private BigDecimal balance;
 
-    public Long getId() {
-        return id;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
+    @OneToOne(optional = false)
+    private Card card;
 
     public void withdraw(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
