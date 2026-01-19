@@ -9,13 +9,20 @@ public class Session {
 
     private final UUID id = UUID.randomUUID();
     private final Long accountId;
-    private boolean authenticated;
+    private SessionState state;
 
     public Session(Long accountId) {
         this.accountId = accountId;
+        this.state = SessionState.CREATED;
     }
 
     public void authenticate() {
-        this.authenticated = true;
+        this.state = SessionState.AUTHENTICATED;
     }
+
+  public boolean validate () {
+    return this.state != SessionState.ENDED && this.state != SessionState.CREATED;
+  }
+
+  
 }

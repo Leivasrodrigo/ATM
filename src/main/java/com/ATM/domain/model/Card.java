@@ -11,14 +11,34 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Card {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private int PIN;
+  public static final int MAX_ATTEMPTS = 3;
 
-    private int cardNumber;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @OneToOne(optional = false)
-    private Account accountId;
+  private int pin;
+
+  @Column(unique = true, nullable = false)
+  private int cardNumber;
+
+  private boolean active;
+
+  private int attempts;
+
+  @OneToOne(optional = false)
+  private Account account;
+
+  public boolean isBlocked() {
+    return attempts >= MAX_ATTEMPTS;
+  }
+
+  public void registerFailedAttempt() {
+    this.attempts++;
+  }
+
+  public void resetAttempts() {
+    this.attempts = 0;
+  }
 }
