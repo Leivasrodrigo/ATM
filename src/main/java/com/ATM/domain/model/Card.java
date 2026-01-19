@@ -25,20 +25,22 @@ public class Card {
 
   private boolean active;
 
+  private boolean blocked;
+
   private int attempts;
 
   @OneToOne(optional = false)
   private Account account;
 
-  public boolean isBlocked() {
-    return attempts >= MAX_ATTEMPTS;
-  }
-
-  public void registerFailedAttempt() {
+    public void registerFailedAttempt() {
     this.attempts++;
   }
 
   public void resetAttempts() {
     this.attempts = 0;
+  }
+
+  public void block() {
+    this.blocked = true;
   }
 }

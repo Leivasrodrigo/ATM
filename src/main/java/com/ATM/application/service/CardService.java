@@ -6,8 +6,6 @@ import com.ATM.domain.port.CardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class CardService {
@@ -33,5 +31,32 @@ public class CardService {
     }
 
     return card;
+  }
+
+  public Card validatePin(int cardNumber, int pin) {
+
+    Card card = cardRepository.findByCardNumber(cardNumber)
+            .orElseThrow(() -> new IllegalStateException("Card not found"));
+
+    if (card.getPin() != pin) {
+      card.registerFailedAttempt();
+
+      if (card.getAttempts() >= 3) {
+        card.block();
+      }
+
+      cardRepository.save(card);
+      throw new IllegalArgumentException("Invalid PIN");
+    }
+
+    card.resetAttempts();
+    cardRepository.save(card);
+
+    return card;
+  }
+
+  public Card findByCardNumber(int cardNumber) {
+    return cardRepository.findByCardNumber(cardNumber)
+            .orElseThrow(() -> new CardNotFoundException("Card not found"));
   }
 }
