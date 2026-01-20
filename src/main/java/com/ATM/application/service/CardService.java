@@ -33,7 +33,7 @@ public class CardService {
     return card;
   }
 
-  public Card validatePin(int cardNumber, int pin) {
+  public void validatePin(int cardNumber, int pin) {
 
     Card card = cardRepository.findByCardNumber(cardNumber)
             .orElseThrow(() -> new IllegalStateException("Card not found"));
@@ -51,8 +51,6 @@ public class CardService {
 
     card.resetAttempts();
     cardRepository.save(card);
-
-    return card;
   }
 
   public Card findByCardNumber(int cardNumber) {
