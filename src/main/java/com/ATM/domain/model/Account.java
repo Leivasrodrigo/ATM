@@ -17,7 +17,7 @@ import java.util.UUID;
 public class Account {
     @Id
     @GeneratedValue
-    private UUID id;
+    private Long id;
 
     private String firstName;
 
