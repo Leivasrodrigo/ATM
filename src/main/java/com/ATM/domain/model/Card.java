@@ -3,6 +3,8 @@ package com.ATM.domain.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "card")
 @Getter
@@ -16,7 +18,7 @@ public class Card {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private UUID id;
 
   private int pin;
 

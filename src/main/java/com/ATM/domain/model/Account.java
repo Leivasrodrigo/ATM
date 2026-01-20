@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "account")
@@ -16,9 +17,11 @@ import java.util.List;
 public class Account {
     @Id
     @GeneratedValue
-    private Long id;
+    private UUID id;
 
-    private String owner;
+    private String firstName;
+
+    private String lastName;
 
     private BigDecimal balance;
 
