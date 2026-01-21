@@ -4,6 +4,8 @@ import lombok.Getter;
 
 import java.util.UUID;
 
+import static com.ATM.application.session.SessionState.AUTHENTICATED;
+
 @Getter
 public class Session {
 
@@ -19,10 +21,27 @@ public class Session {
     }
 
     public void authenticate() {
-        this.state = SessionState.AUTHENTICATED;
+        if (this.state != SessionState.CREATED) {
+            throw new IllegalStateException("Session already in progress");
+        }
+        this.state = AUTHENTICATED;
     }
 
-  public boolean validate () {
-    return this.state != SessionState.ENDED && this.state != SessionState.CREATED;
-  }
+    public void ensureAuthenticated() {
+        if (state != SessionState.AUTHENTICATED) {
+            throw new IllegalStateException("Session not authenticated");
+        }
+    }
+
+    public void markOperationSelected() {
+        ensureAuthenticated();
+        this.state = SessionState.OPERATION_SELECTED;
+    }
+
+    public void finishBalanceOperation() {
+        if (state != SessionState.OPERATION_SELECTED) {
+            throw new IllegalStateException("No operation in progress");
+        }
+        this.state = SessionState.AUTHENTICATED;
+    }
 }

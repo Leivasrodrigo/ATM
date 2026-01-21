@@ -16,7 +16,7 @@ public class WithdrawCommand implements AtmCommand {
 
     @Override
     public AtmResponse execute(AtmContext context) {
-        accountService.withdraw(context.accountId(), context.amount());
+        accountService.withdraw(context.session().getAccountId(), context.amount());
         return AtmResponse.ok("Withdraw successful");
     }
 }
