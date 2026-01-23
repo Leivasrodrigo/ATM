@@ -33,4 +33,9 @@ public class AuthenticationService {
 
         sessionRepository.save(session);
     }
+
+    public void endSession(Session session) {
+      session.endSession();
+      sessionRepository.save(session);
+    }
 }

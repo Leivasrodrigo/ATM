@@ -38,10 +38,7 @@ public class Session {
         this.state = SessionState.OPERATION_SELECTED;
     }
 
-    public void finishBalanceOperation() {
-        if (state != SessionState.OPERATION_SELECTED) {
-            throw new IllegalStateException("No operation in progress");
-        }
-        this.state = SessionState.AUTHENTICATED;
+    public void endSession() {
+      this.state = SessionState.ENDED;
     }
 }

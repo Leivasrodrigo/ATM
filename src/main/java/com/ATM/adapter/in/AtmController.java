@@ -35,8 +35,8 @@ public class AtmController {
   }
 
   // Digitação do PIN
-  @PostMapping("/session/{sessionId}/authenticate/{pin}")
-  public void authenticate(@PathVariable UUID sessionId, @PathVariable int pin) {
+  @PostMapping("/session/{sessionId}/authenticate")
+  public void authenticate(@PathVariable UUID sessionId, @RequestBody int pin) {
     Session session = sessionRepository.findById(sessionId);
     authenticationService.authenticateSession(session, pin);
   }
@@ -48,5 +48,12 @@ public class AtmController {
 
     AtmContext context = new AtmContext(session, null);
     return dispatcher.dispatch(AtmOperation.BALANCE, context);
+  }
+
+  // Encerrar sessão
+  @PostMapping("/session/{sessionId}/end")
+  public void endSession(@PathVariable UUID sessionId) {
+    Session session = sessionRepository.findById(sessionId);
+    authenticationService.endSession(session);
   }
 }

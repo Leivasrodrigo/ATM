@@ -19,11 +19,8 @@ public class BalanceCommand implements AtmCommand {
     @Override
     public AtmResponse execute(AtmContext context) {
         context.session().ensureAuthenticated();
-        context.session().markOperationSelected();
 
         BigDecimal balance = accountService.getBalance(context.session().getAccountId());
-
-        context.session().finishBalanceOperation();
 
         return AtmResponse.ok("Balance: " + balance);
     }
