@@ -2,6 +2,7 @@ package com.ATM.application.session;
 
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static com.ATM.application.session.SessionState.AUTHENTICATED;
@@ -13,6 +14,7 @@ public class Session {
     private final Long accountId;
     private final int cardNumber;
     private SessionState state;
+    private BigDecimal pendingWithdrawAmount;
 
     public Session(Long accountId, int cardNumber) {
         this.accountId = accountId;
@@ -27,15 +29,59 @@ public class Session {
         this.state = AUTHENTICATED;
     }
 
+    public void reauthenticate() {
+      if (this.state != SessionState.AWAITING_REAUTH) {
+        throw new IllegalStateException("Session not awaiting reauthentication");
+      }
+      this.state = SessionState.REAUTHENTICATED;
+    }
+
     public void ensureAuthenticated() {
         if (state != SessionState.AUTHENTICATED) {
             throw new IllegalStateException("Session not authenticated");
         }
     }
 
-    public void markOperationSelected() {
-        ensureAuthenticated();
-        this.state = SessionState.OPERATION_SELECTED;
+    public void ensureOperationSelected() {
+      if (state != SessionState.OPERATION_SELECTED) {
+        throw new IllegalStateException("Session state different from Operation Selected");
+      }
+    }
+
+    public void ensureAwaitingReauth() {
+      if (state != SessionState.AWAITING_REAUTH) {
+        throw new IllegalStateException("Awaiting for reauthentication");
+      }
+    }
+
+    public void ensureReauthenticated() {
+      if (state != SessionState.REAUTHENTICATED) {
+        throw new IllegalStateException("Reauthentication required");
+      }
+    }
+
+    public void selectWithdraw(BigDecimal amount) {
+      ensureAuthenticated();
+      this.pendingWithdrawAmount = amount;
+      this.state = SessionState.OPERATION_SELECTED;
+    }
+
+    public BigDecimal getPendingWithdrawAmount() {
+      if (pendingWithdrawAmount == null) {
+        throw new IllegalStateException("No withdraw selected");
+      }
+      return pendingWithdrawAmount;
+    }
+
+    public void markAwaitingReauth() {
+      ensureOperationSelected();
+      this.state = SessionState.AWAITING_REAUTH;
+    }
+
+    public void finishWithdraw() {
+      ensureReauthenticated();
+      this.pendingWithdrawAmount = null;
+      this.state = AUTHENTICATED;
     }
 
     public void endSession() {

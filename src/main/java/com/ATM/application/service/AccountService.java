@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +27,15 @@ public class AccountService {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"))
                 .getBalance();
+    }
+
+    public void selectWithdraw(Long accountId, BigDecimal amount) {
+      if (!this.hasSufficientBalance(accountId, amount)) {
+        throw new IllegalArgumentException("Not enough balance for this operation");
+      }
+    }
+
+    public Boolean hasSufficientBalance(Long accountId, BigDecimal amount) {
+      return accountRepository.hasSufficientBalance(accountId, amount);
     }
 }

@@ -4,7 +4,6 @@ import com.ATM.application.command.AtmContext;
 import com.ATM.application.command.AtmOperation;
 import com.ATM.application.command.AtmResponse;
 import com.ATM.application.dispatcher.AtmCommandDispatcher;
-import com.ATM.application.service.AccountService;
 import com.ATM.application.service.AuthenticationService;
 import com.ATM.application.session.Session;
 import com.ATM.domain.port.SessionRepository;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -24,7 +24,6 @@ import java.util.UUID;
 public class AtmController {
   private final AuthenticationService authenticationService;
   private final SessionRepository sessionRepository;
-  private final AccountService accountService;
   private final AtmCommandDispatcher dispatcher;
 
   // Inserção do cartão
@@ -34,6 +33,12 @@ public class AtmController {
     return session.getId();
   }
 
+  @PostMapping("/session/{sessionId}/reinsert-card")
+  public void reInsertCard(@PathVariable UUID sessionId, @RequestBody int cardNumber) {
+    Session session = sessionRepository.findById(sessionId);
+    authenticationService.reValidateCard(session, cardNumber);
+  }
+
   // Digitação do PIN
   @PostMapping("/session/{sessionId}/authenticate")
   public void authenticate(@PathVariable UUID sessionId, @RequestBody int pin) {
@@ -41,13 +46,33 @@ public class AtmController {
     authenticationService.authenticateSession(session, pin);
   }
 
+  @PostMapping("/session/{sessionId}/reauthenticate")
+  public void reauthenticate(@PathVariable UUID sessionId, @RequestBody int pin) {
+    Session session = sessionRepository.findById(sessionId);
+    authenticationService.reauthenticateSession(session, pin);
+  }
+
   // Consultar saldo
   @GetMapping("/session/{sessionId}/balance")
   public AtmResponse balance(@PathVariable UUID sessionId) {
     Session session = sessionRepository.findById(sessionId);
 
-    AtmContext context = new AtmContext(session, null);
+    AtmContext context = new AtmContext(session);
     return dispatcher.dispatch(AtmOperation.BALANCE, context);
+  }
+
+  @PostMapping("/session/{sessionId}/select-withdraw")
+  public void selectWithdraw(@PathVariable UUID sessionId, @RequestBody BigDecimal amount) {
+    Session session = sessionRepository.findById(sessionId);
+    authenticationService.selectWithdraw(session, amount);
+  }
+
+  @PostMapping("/session/{sessionId}/withdraw")
+  public AtmResponse withdraw(@PathVariable UUID sessionId) {
+    Session session = sessionRepository.findById(sessionId);
+
+    AtmContext context = new AtmContext(session);
+    return dispatcher.dispatch(AtmOperation.WITHDRAW, context);
   }
 
   // Encerrar sessão
