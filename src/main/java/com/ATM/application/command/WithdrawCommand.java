@@ -25,7 +25,8 @@ public class WithdrawCommand implements AtmCommand {
       session.ensureReauthenticated();
 
       BigDecimal amount = session.getPendingWithdrawAmount();
-      accountService.withdraw(session.getAccountId(), amount);      authenticationService.finishWithdraw(context.session());
+      accountService.withdraw(session.getAccountId(), amount);
+      authenticationService.finishWithdraw(context.session());
       return AtmResponse.ok("Withdraw successful. Amount: " + amount);
     }
 }
