@@ -1,6 +1,9 @@
 package com.ATM.application.service;
 
+import com.ATM.domain.exception.CardBlockedException;
+import com.ATM.domain.exception.CardInactiveException;
 import com.ATM.domain.exception.CardNotFoundException;
+import com.ATM.domain.exception.InvalidCardException;
 import com.ATM.domain.model.Card;
 import com.ATM.domain.port.CardRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,15 +22,15 @@ public class CardService {
                     new CardNotFoundException("Card not found"));
 
     if (!card.isActive()) {
-      throw new CardNotFoundException("Card is inactive");
+      throw new CardInactiveException("Card is inactive");
     }
 
     if (card.isBlocked()) {
-      throw new CardNotFoundException("Card is blocked");
+      throw new CardBlockedException("Card is blocked");
     }
 
     if (card.getAccount() == null) {
-      throw new CardNotFoundException("Card is not associated with an account");
+      throw new InvalidCardException("Card is not associated with an account");
     }
 
     return card;
@@ -35,8 +38,7 @@ public class CardService {
 
   public void validatePin(int cardNumber, int pin) {
 
-    Card card = cardRepository.findByCardNumber(cardNumber)
-            .orElseThrow(() -> new IllegalStateException("Card not found"));
+    Card card = this.findByCardNumber(cardNumber);
 
     if (card.getPin() != pin) {
       card.registerFailedAttempt();

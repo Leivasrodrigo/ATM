@@ -22,6 +22,7 @@ import java.util.UUID;
 @RequestMapping("/atm")
 @RequiredArgsConstructor
 public class AtmController {
+
   private final AuthenticationService authenticationService;
   private final SessionRepository sessionRepository;
   private final AtmCommandDispatcher dispatcher;
@@ -81,4 +82,5 @@ public class AtmController {
     Session session = sessionRepository.findById(sessionId);
     authenticationService.endSession(session);
   }
+
 }

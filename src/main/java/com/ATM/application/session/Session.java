@@ -1,8 +1,11 @@
 package com.ATM.application.session;
 
+import com.ATM.domain.exception.SessionExpiredException;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 import static com.ATM.application.session.SessionState.AUTHENTICATED;
@@ -10,81 +13,96 @@ import static com.ATM.application.session.SessionState.AUTHENTICATED;
 @Getter
 public class Session {
 
-    private final UUID id = UUID.randomUUID();
-    private final Long accountId;
-    private final int cardNumber;
-    private SessionState state;
-    private BigDecimal pendingWithdrawAmount;
+  private final UUID id = UUID.randomUUID();
+  private final Long accountId;
+  private final int cardNumber;
+  private SessionState state;
+  private final Instant expiresAt;
+  private BigDecimal pendingWithdrawAmount;
 
-    public Session(Long accountId, int cardNumber) {
-        this.accountId = accountId;
-        this.cardNumber = cardNumber;
-        this.state = SessionState.CREATED;
-    }
+  public Session(Long accountId, int cardNumber) {
+    this.accountId = accountId;
+    this.cardNumber = cardNumber;
+    this.state = SessionState.CREATED;
+    this.expiresAt = Instant.now()
+            .plus(Duration.ofMinutes(10));
+  }
 
-    public void authenticate() {
-        if (this.state != SessionState.CREATED) {
-            throw new IllegalStateException("Session already in progress");
-        }
-        this.state = AUTHENTICATED;
-    }
+  public boolean isExpired() {
+    return Instant.now()
+            .isAfter(expiresAt);
+  }
 
-    public void reauthenticate() {
-      if (this.state != SessionState.AWAITING_REAUTH) {
-        throw new IllegalStateException("Session not awaiting reauthentication");
-      }
-      this.state = SessionState.REAUTHENTICATED;
+  public void ensureNotExpired() {
+    if (isExpired()) {
+      throw new SessionExpiredException();
     }
+  }
 
-    public void ensureAuthenticated() {
-        if (state != SessionState.AUTHENTICATED) {
-            throw new IllegalStateException("Session not authenticated");
-        }
+  public void authenticate() {
+    if (this.state != SessionState.CREATED) {
+      throw new IllegalStateException("Session already in progress");
     }
+    this.state = AUTHENTICATED;
+  }
 
-    public void ensureOperationSelected() {
-      if (state != SessionState.OPERATION_SELECTED) {
-        throw new IllegalStateException("Session state different from Operation Selected");
-      }
+  public void reauthenticate() {
+    if (this.state != SessionState.AWAITING_REAUTH) {
+      throw new IllegalStateException("Session not awaiting reauthentication");
     }
+    this.state = SessionState.REAUTHENTICATED;
+  }
 
-    public void ensureAwaitingReauth() {
-      if (state != SessionState.AWAITING_REAUTH) {
-        throw new IllegalStateException("Awaiting for reauthentication");
-      }
+  public void ensureAuthenticated() {
+    if (state != SessionState.AUTHENTICATED) {
+      throw new IllegalStateException("Session not authenticated");
     }
+  }
 
-    public void ensureReauthenticated() {
-      if (state != SessionState.REAUTHENTICATED) {
-        throw new IllegalStateException("Reauthentication required");
-      }
+  public void ensureOperationSelected() {
+    if (state != SessionState.OPERATION_SELECTED) {
+      throw new IllegalStateException("Session state different from Operation Selected");
     }
+  }
 
-    public void selectWithdraw(BigDecimal amount) {
-      ensureAuthenticated();
-      this.pendingWithdrawAmount = amount;
-      this.state = SessionState.OPERATION_SELECTED;
+  public void ensureAwaitingReauth() {
+    if (state != SessionState.AWAITING_REAUTH) {
+      throw new IllegalStateException("Not awaiting for reauthentication");
     }
+  }
 
-    public BigDecimal getPendingWithdrawAmount() {
-      if (pendingWithdrawAmount == null) {
-        throw new IllegalStateException("No withdraw selected");
-      }
-      return pendingWithdrawAmount;
+  public void ensureReauthenticated() {
+    if (state != SessionState.REAUTHENTICATED) {
+      throw new IllegalStateException("Reauthentication required");
     }
+  }
 
-    public void markAwaitingReauth() {
-      ensureOperationSelected();
-      this.state = SessionState.AWAITING_REAUTH;
-    }
+  public void selectWithdraw(BigDecimal amount) {
+    ensureAuthenticated();
+    this.pendingWithdrawAmount = amount;
+    this.state = SessionState.OPERATION_SELECTED;
+  }
 
-    public void finishWithdraw() {
-      ensureReauthenticated();
-      this.pendingWithdrawAmount = null;
-      this.state = AUTHENTICATED;
+  public BigDecimal getPendingWithdrawAmount() {
+    if (pendingWithdrawAmount == null) {
+      throw new IllegalStateException("No withdraw selected");
     }
+    return pendingWithdrawAmount;
+  }
 
-    public void endSession() {
-      this.state = SessionState.ENDED;
-    }
+  public void markAwaitingReauth() {
+    ensureOperationSelected();
+    this.state = SessionState.AWAITING_REAUTH;
+  }
+
+  public void finishWithdraw() {
+    ensureReauthenticated();
+    this.pendingWithdrawAmount = null;
+    this.state = AUTHENTICATED;
+  }
+
+  public void endSession() {
+    this.state = SessionState.ENDED;
+  }
+
 }

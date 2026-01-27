@@ -1,6 +1,7 @@
 package com.ATM.application.command;
 
 import com.ATM.application.service.AccountService;
+import com.ATM.application.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,19 +10,26 @@ import java.math.BigDecimal;
 @Component
 @RequiredArgsConstructor
 public class BalanceCommand implements AtmCommand {
-    private final AccountService accountService;
 
-    @Override
-    public boolean supports(AtmOperation operation) {
-        return AtmOperation.BALANCE == operation;
-    }
+  private final AccountService accountService;
+  private final AuthenticationService authenticationService;
 
-    @Override
-    public AtmResponse execute(AtmContext context) {
-        context.session().ensureAuthenticated();
+  @Override
+  public boolean supports(AtmOperation operation) {
+    return AtmOperation.BALANCE == operation;
+  }
 
-        BigDecimal balance = accountService.getBalance(context.session().getAccountId());
+  @Override
+  public AtmResponse execute(AtmContext context) {
+    authenticationService.ensureSessionActive(context.session());
 
-        return AtmResponse.ok("Balance: " + balance);
-    }
+    context.session()
+            .ensureAuthenticated();
+
+    BigDecimal balance = accountService.getBalance(context.session()
+            .getAccountId());
+
+    return AtmResponse.ok("Balance: " + balance);
+  }
+
 }

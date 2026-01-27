@@ -11,22 +11,28 @@ import java.math.BigDecimal;
 @Component
 @RequiredArgsConstructor
 public class WithdrawCommand implements AtmCommand {
-        private final AccountService accountService;
-        private final AuthenticationService authenticationService;
 
-    @Override
-    public boolean supports(AtmOperation operation) {
-        return AtmOperation.WITHDRAW == operation;
-    }
+  private final AccountService accountService;
+  private final AuthenticationService authenticationService;
 
-    @Override
-    public AtmResponse execute(AtmContext context) {
-      Session session = context.session();
-      session.ensureReauthenticated();
+  @Override
+  public boolean supports(AtmOperation operation) {
+    return AtmOperation.WITHDRAW == operation;
+  }
 
-      BigDecimal amount = session.getPendingWithdrawAmount();
-      accountService.withdraw(session.getAccountId(), amount);
-      authenticationService.finishWithdraw(context.session());
-      return AtmResponse.ok("Withdraw successful. Amount: " + amount);
-    }
+  @Override
+  public AtmResponse execute(AtmContext context) {
+    authenticationService.ensureSessionActive(context.session());
+
+    context.session()
+            .ensureReauthenticated();
+
+    BigDecimal amount = context.session()
+            .getPendingWithdrawAmount();
+    accountService.withdraw(context.session()
+            .getAccountId(), amount);
+    authenticationService.finishWithdraw(context.session());
+    return AtmResponse.ok("Withdraw successful. Amount: " + amount);
+  }
+
 }
