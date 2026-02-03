@@ -17,13 +17,13 @@ public class Card {
   public static final int MAX_ATTEMPTS = 3;
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue
   private UUID id;
 
   private int pin;
 
   @Column(unique = true, nullable = false)
-  private int cardNumber;
+  private Long cardNumber;
 
   private boolean active;
 
@@ -31,10 +31,10 @@ public class Card {
 
   private int attempts;
 
-  @OneToOne(optional = false)
+  @OneToOne(cascade = CascadeType.ALL)
   private Account account;
 
-    public void registerFailedAttempt() {
+  public void registerFailedAttempt() {
     this.attempts++;
   }
 
@@ -45,4 +45,5 @@ public class Card {
   public void block() {
     this.blocked = true;
   }
+
 }

@@ -1,6 +1,5 @@
 package com.ATM.adapter.out;
 
-import com.ATM.domain.model.Account;
 import com.ATM.domain.model.Card;
 import com.ATM.domain.port.CardRepository;
 import org.springframework.stereotype.Repository;
@@ -11,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public class InMemoryCardRepository implements CardRepository {
-  private final Map<Integer, Card> database = new HashMap<>();
+  private final Map<Long, Card> database = new HashMap<>();
 
   @Override
   public Optional<Card> findById(Long id) {
@@ -22,12 +21,12 @@ public class InMemoryCardRepository implements CardRepository {
   }
 
   @Override
-  public Optional<Card> findByCardNumber(int cardNumber) {
+  public Optional<Card> findByCardNumber(Long cardNumber) {
     return Optional.ofNullable(database.get(cardNumber));
   }
 
   @Override
-  public void save(Card card) {
-    database.put(card.getCardNumber(), card);
+  public Card save(Card card) {
+    return database.put(card.getCardNumber(), card);
   }
 }

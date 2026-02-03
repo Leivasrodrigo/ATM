@@ -2,30 +2,32 @@ package com.ATM.adapter.out;
 
 import com.ATM.application.session.Session;
 import com.ATM.domain.port.SessionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class InMemorySessionRepository implements SessionRepository {
-  private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
+@Primary
+@RequiredArgsConstructor
+public class JpaSessionRepository implements SessionRepository {
+
+  private final SpringSessionJpaRepository jpaRepository;
 
   @Override
   public Session save(Session session) {
-    sessions.put(session.getId(), session);
-    return session;
+    return jpaRepository.save(session);
   }
 
   @Override
   public Optional<Session> findById(UUID sessionId) {
-    return Optional.ofNullable(sessions.get(sessionId));
+    return jpaRepository.findById(sessionId);
   }
 
   @Override
   public void deleteById(UUID sessionId) {
-    sessions.remove(sessionId);
+    jpaRepository.deleteById(sessionId);
   }
 }

@@ -15,33 +15,36 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Account {
-    @Id
-    @GeneratedValue
-    private Long id;
 
-    private String firstName;
+  @Id
+  @GeneratedValue
+  private Long id;
 
-    private String lastName;
+  private String firstName;
 
-    private BigDecimal balance;
+  private String lastName;
 
-    @OneToOne(optional = false)
-    private Card card;
+  private BigDecimal balance;
 
-    public void withdraw(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Invalid amount");
-        }
-        if (balance.compareTo(amount) < 0) {
-            throw new IllegalStateException("Insufficient funds");
-        }
-        balance = balance.subtract(amount);
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "card_id", nullable = false)
+  private Card card;
+
+  public void withdraw(BigDecimal amount) {
+    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Invalid amount");
     }
-
-    public void deposit(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Invalid amount");
-        }
-        balance = balance.add(amount);
+    if (balance.compareTo(amount) < 0) {
+      throw new IllegalStateException("Insufficient funds");
     }
+    balance = balance.subtract(amount);
+  }
+
+  public void deposit(BigDecimal amount) {
+    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Invalid amount");
+    }
+    balance = balance.add(amount);
+  }
+
 }

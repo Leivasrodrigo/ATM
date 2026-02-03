@@ -1,7 +1,12 @@
 package com.ATM.application.session;
 
 import com.ATM.domain.exception.SessionExpiredException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -10,17 +15,21 @@ import java.util.UUID;
 
 import static com.ATM.application.session.SessionState.AUTHENTICATED;
 
+@Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class Session {
 
-  private final UUID id = UUID.randomUUID();
+  @Id
+  @GeneratedValue
+  private UUID id;
   private final Long accountId;
-  private final int cardNumber;
+  private final Long cardNumber;
   private SessionState state;
   private final Instant expiresAt;
   private BigDecimal pendingWithdrawAmount;
 
-  public Session(Long accountId, int cardNumber) {
+  public Session(Long accountId, Long cardNumber) {
     this.accountId = accountId;
     this.cardNumber = cardNumber;
     this.state = SessionState.CREATED;

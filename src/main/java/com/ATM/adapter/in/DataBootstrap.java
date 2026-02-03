@@ -24,12 +24,12 @@ public class DataBootstrap {
 
       Account account = Account.builder()
               .balance(new BigDecimal("1000.00"))
+              .firstName("Ash")
+              .lastName("Ketchum")
               .build();
 
-      accountRepository.save(account);
-
       Card card = Card.builder()
-              .cardNumber(123456)
+              .cardNumber(123456L)
               .pin(1234)
               .active(true)
               .blocked(false)
@@ -37,7 +37,9 @@ public class DataBootstrap {
               .account(account)
               .build();
 
-      cardRepository.save(card);
+      account.setCard(card);
+
+      accountRepository.save(account);
     };
   }
 }

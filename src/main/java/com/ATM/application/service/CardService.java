@@ -15,7 +15,7 @@ public class CardService {
 
   private final CardRepository cardRepository;
 
-  public Card validateCardForSession(int cardNumber) {
+  public Card validateCardForSession(Long cardNumber) {
 
     Card card = cardRepository.findByCardNumber(cardNumber)
             .orElseThrow(() ->
@@ -36,7 +36,7 @@ public class CardService {
     return card;
   }
 
-  public void validatePin(int cardNumber, int pin) {
+  public void validatePin(Long cardNumber, int pin) {
 
     Card card = this.findByCardNumber(cardNumber);
 
@@ -55,7 +55,7 @@ public class CardService {
     cardRepository.save(card);
   }
 
-  public Card findByCardNumber(int cardNumber) {
+  public Card findByCardNumber(Long cardNumber) {
     return cardRepository.findByCardNumber(cardNumber)
             .orElseThrow(() -> new CardNotFoundException("Card not found"));
   }

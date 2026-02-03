@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    container_name: atm-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    environment:
+      # Note que o host aqui é 'db' (nome do serviço), não 'localhost'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/atm_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_LIQUIBASE_ENABLED: "true"
+    networks:
+      - atm-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: atm-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: atm_db
+      TZ: America/Sao_Paulo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - atm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d atm_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  atm-network:

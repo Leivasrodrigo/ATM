@@ -17,7 +17,7 @@ public class AuthenticationService {
   private final SessionRepository sessionRepository;
   private final AccountService accountService;
 
-  public Session createSession(int cardNumber) {
+  public Session createSession(Long cardNumber) {
     Card card = cardService.validateCardForSession(cardNumber);
 
     Session session = new Session(card.getAccount()
@@ -26,7 +26,7 @@ public class AuthenticationService {
     return sessionRepository.save(session);
   }
 
-  public void reValidateCard(Session session, int cardNumber) {
+  public void reValidateCard(Session session, Long cardNumber) {
     this.ensureSessionActive(session);
     session.ensureOperationSelected();
     cardService.validateCardForSession(cardNumber);
