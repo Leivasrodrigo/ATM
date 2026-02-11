@@ -31,7 +31,8 @@ public class Card {
 
   private int attempts;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne
+  @JoinColumn(name = "account_id", nullable = false)
   private Account account;
 
   public void registerFailedAttempt() {

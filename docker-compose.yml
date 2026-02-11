@@ -9,7 +9,6 @@ services:
         condition: service_healthy
     restart: on-failure
     environment:
-      # Note que o host aqui é 'db' (nome do serviço), não 'localhost'
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/atm_db
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin

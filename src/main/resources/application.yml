@@ -1,13 +1,14 @@
-datasource:
-  url: jdbc:postgresql://localhost:5432/atm_db
-  username: admin
-  password: admin
-  driver-class-name: org.postgresql.Driver
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/atm_db
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
 
   liquibase:

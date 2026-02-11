@@ -1,9 +1,13 @@
 package com.ATM.application.session;
 
 import com.ATM.domain.exception.SessionExpiredException;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +19,7 @@ import java.util.UUID;
 
 import static com.ATM.application.session.SessionState.AUTHENTICATED;
 
+@Table(name = "atm_session")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -25,6 +30,9 @@ public class Session {
   private UUID id;
   private final Long accountId;
   private final Long cardNumber;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
   private SessionState state;
   private final Instant expiresAt;
   private BigDecimal pendingWithdrawAmount;

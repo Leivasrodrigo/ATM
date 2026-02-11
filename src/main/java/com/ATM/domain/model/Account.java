@@ -17,7 +17,7 @@ import java.util.UUID;
 public class Account {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private String firstName;
@@ -26,8 +26,7 @@ public class Account {
 
   private BigDecimal balance;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "card_id", nullable = false)
+  @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
   private Card card;
 
   public void withdraw(BigDecimal amount) {
